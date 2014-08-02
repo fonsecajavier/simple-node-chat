@@ -9,10 +9,11 @@ app.get('/', function(req, res){
 
 var store = redis.createClient();
 var pub = redis.createClient();
+var sub = redis.createClient();
+
+sub.subscribe("chatting");
 
 io.sockets.on("connection", function(client){
-  var sub = redis.createClient();
-  sub.subscribe("chatting");
   sub.on("message", function(channel, message){
     console.log("message received on server from publish");
     client.send(message);
@@ -28,7 +29,6 @@ io.sockets.on("connection", function(client){
     }
   });
   client.on("disconnect", function(){
-    sub.quit();
     pub.publish("chatting", "User is disconnected " + client.id);
   });
 })
